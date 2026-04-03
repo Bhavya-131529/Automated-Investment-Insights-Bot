@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+streamlit
+pydantic
+requests
+pandas
+pytest
+huggingface_hub
+httpx
