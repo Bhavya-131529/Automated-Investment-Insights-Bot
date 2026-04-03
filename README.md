@@ -1,0 +1,2 @@
+# Automated-Investment-Insights-Bot
+ARTIFICIAL INTELLIGENCE ESSENTIALS
