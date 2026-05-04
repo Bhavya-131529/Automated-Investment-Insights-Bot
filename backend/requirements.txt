@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+sqlalchemy
+sqlmodel
+pandas
+yfinance
+alpha_vantage
+langchain
+langchain-community
+langchain-openai
+faiss-cpu
+python-dotenv
+openai
+pydantic-settings
+requests

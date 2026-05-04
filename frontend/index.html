@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InvestAI | Personalized Investment Insights</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="icon">💰</span>
+                <h1>InvestAI</h1>
+            </div>
+            
+            <section class="profile-section">
+                <h2>Your Profile</h2>
+                <form id="profile-form">
+                    <div class="input-group">
+                        <label for="goal">Goal</label>
+                        <input type="text" id="goal" placeholder="e.g. Retirement" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="horizon">Horizon (Years)</label>
+                        <input type="number" id="horizon" placeholder="5" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="budget">Monthly Budget ($)</label>
+                        <input type="number" id="budget" placeholder="500" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="risk">Risk Tolerance</label>
+                        <select id="risk">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="holdings">Existing Holdings (Optional)</label>
+                        <input type="text" id="holdings" placeholder="e.g. 10 AAPL, 50 SPY">
+                    </div>
+                    <button type="submit" class="btn-primary">Save Profile</button>
+                </form>
+            </section>
+            
+            <div class="disclaimer">
+                <p>⚠️ For informational purposes only. Not financial advice.</p>
+            </div>
+        </aside>
+        
+        <main class="chat-container">
+            <header class="chat-header">
+                <div class="status">
+                    <span class="dot"></span>
+                    <span>AI Assistant Online</span>
+                </div>
+            </header>
+            
+            <div id="chat-messages" class="chat-messages">
+                <!-- Messages will appear here -->
+                <div class="message assistant">
+                    <div class="bubble">
+                        Hello! I'm your InvestAI assistant. Complete your profile on the left so I can provide personalized suggestions, or ask me anything about investing!
+                    </div>
+                </div>
+            </div>
+            
+            <footer class="chat-input-area">
+                <form id="chat-form">
+                    <input type="text" id="chat-input" placeholder="Type your question here..." autocomplete="off">
+                    <button type="submit" class="send-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                        </svg>
+                    </button>
+                </form>
+            </footer>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
