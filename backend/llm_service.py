@@ -1,62 +1,70 @@
 import os
-from openai import OpenAI
+import json
+from groq import Groq
 from backend.rag_engine import get_retriever
 from backend.finance_tools import get_stock_price
-import json
+from dotenv import load_dotenv
 
-client = OpenAI()
+load_dotenv()
 
-SYSTEM_PROMPT = """You are a professional AI Investment Insights Assistant. 
-Your goal is to provide personalized, risk-aware investment strategies based on user profiles and financial knowledge.
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+# Initialize client only if key is available to avoid crash on import
+client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 
+# Condensed system prompt to minimize token usage
+SYSTEM_PROMPT = """AI Investment Assistant.
 Rules:
-1. Always include a disclaimer: "This is for informational purposes only and not financial advice."
-2. Do not guarantee returns.
-3. Prioritize stable, diversified strategies over stock tips.
-4. Use the provided context from our knowledge base and live market data.
-5. If the user asks for specific stock prices, use the tool data if available.
-6. If the user provides 'existing_holdings', provide portfolio insights and suggest rebalancing if necessary to align with their risk tolerance.
-7. Ensure your suggestions are structured and easy to read.
+1. Add disclaimer: "Not financial advice."
+2. No guarantees. Focus on stable strategies.
+3. Use context/market data.
+4. Consider user profile. Keep structured & concise.
 
-User Profile:
+Profile:
 {user_profile}
 
-Context from Knowledge Base:
+Context:
 {context}
 """
 
 def generate_response(query: str, profile_data: dict, chat_history: list):
-    # 1. Retrieve context from RAG
+    if not client:
+        return "GROQ_API_KEY is not set."
+        
     retriever = get_retriever()
     context = ""
     if retriever:
-        docs = retriever.invoke(query)
-        context = "\n\n".join([doc.page_content for doc in docs])
+        try:
+            # Retrieve only 1 doc, limit text length to save tokens
+            docs = retriever.invoke(query)
+            if docs:
+                context = docs[0].page_content[:300]
+        except Exception as e:
+            pass
+
+    try:
+        spy_data = get_stock_price("SPY")
+        market_context = f"\nSPY: {spy_data.get('price', 'N/A')}"
+    except:
+        market_context = ""
+
+    system_instruction = SYSTEM_PROMPT.format(
+        user_profile=json.dumps(profile_data, default=str),
+        context=context + market_context
+    )
+
+    messages = [{"role": "system", "content": system_instruction}]
     
-    # 2. Get live market data (example: check SPY and AGG for base indices)
-    spy_data = get_stock_price("SPY")
-    agg_data = get_stock_price("AGG")
-    market_context = f"\nMarket Data:\nSPY (S&P 500): {spy_data}\nAGG (Total Bond Market): {agg_data}"
-    
-    # 3. Construct messages
-    messages = [
-        {"role": "system", "content": SYSTEM_PROMPT.format(
-            user_profile=json.dumps(profile_data),
-            context=context + market_context
-        )}
-    ]
-    
-    # Add chat history
-    for msg in chat_history[-5:]: # Last 5 messages for context
-        messages.append({"role": msg["role"], "content": msg["content"]})
+    # Only keep the last 2 messages for token efficiency
+    for msg in chat_history[-2:]:
+        role = "user" if msg["role"] == "user" else "assistant"
+        messages.append({"role": role, "content": msg["content"]})
         
     messages.append({"role": "user", "content": query})
-    
-    # 4. Call LLM
-    response = client.chat.completions.create(
-        model="gpt-4o", # or gpt-3.5-turbo
+
+    chat_completion = client.chat.completions.create(
         messages=messages,
-        temperature=0.7
+        model="llama-3.1-8b-instant",
+        temperature=0.5,
+        max_tokens=300,
     )
-    
-    return response.choices[0].message.content
+    return chat_completion.choices[0].message.content

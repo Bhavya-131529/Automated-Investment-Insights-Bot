@@ -5,5 +5,8 @@ pydantic
 requests
 pandas
 pytest
+pytest
 huggingface_hub
 httpx
+groq
+sentence-transformers
